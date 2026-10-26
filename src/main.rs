@@ -1,11 +1,11 @@
 mod count;
 mod ft;
 
-use std::path::PathBuf;
+use std::{fs::File, io::BufReader, path::PathBuf};
 
 use clap::{Command, arg, command, value_parser};
 
-use crate::count::count_file;
+use crate::count::{Count, RUST};
 
 fn main() {
     let matches = command!()
@@ -14,13 +14,16 @@ fn main() {
                 .id("pattern")
                 .required(false)
                 .value_parser(value_parser!(PathBuf))
-                .default_value("src/count.rs"),
+                .default_value("src/main.rs"),
         )
         .get_matches();
 
     let pattern: &PathBuf = matches.get_one("pattern").unwrap();
 
-    let count = count_file(pattern).unwrap().code;
+    let file = File::open(pattern).unwrap();
+    let mut reader = BufReader::new(&file);
 
-    println!("{count}")
+    let count = Count::from_reader(&mut reader, RUST).unwrap();
+
+    println!("{} {} {}", count.comment, count.blank, count.code);
 }
