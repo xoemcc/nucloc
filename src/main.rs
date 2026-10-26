@@ -1,16 +1,17 @@
 mod count;
-mod ft;
+mod output;
 
-use std::{fs::File, io::BufReader, path::PathBuf};
+use std::{ffi::OsStr, fs::File, io::BufReader, path::PathBuf};
 
 use clap::{Command, arg, command, value_parser};
 
-use crate::count::{Count, RUST};
+use crate::count::{Count, LANGUAGES, RUST, TEXT};
 
 fn main() {
     let matches = command!()
         .arg(
             arg!(<PATTERN>)
+                .num_args(0..)
                 .id("pattern")
                 .required(false)
                 .value_parser(value_parser!(PathBuf))
@@ -18,12 +19,25 @@ fn main() {
         )
         .get_matches();
 
-    let pattern: &PathBuf = matches.get_one("pattern").unwrap();
+    let patterns: Vec<&PathBuf> = matches.get_many("pattern").unwrap().collect();
 
-    let file = File::open(pattern).unwrap();
-    let mut reader = BufReader::new(&file);
+    patterns.iter().for_each(|p| {
+        let ext = p.extension().unwrap_or(OsStr::new("")).to_string_lossy();
 
-    let count = Count::from_reader(&mut reader, RUST).unwrap();
+        let lang = LANGUAGES.iter().find(|l| l.is_file(&ext)).unwrap_or(&TEXT);
 
-    println!("{} {} {}", count.comment, count.blank, count.code);
+        let file = File::open(p).unwrap();
+        let mut reader = BufReader::new(&file);
+
+        let count = Count::from_reader(&mut reader, *lang).unwrap();
+
+        println!(
+            "{} {} {} {} {}",
+            p.file_name().unwrap().to_string_lossy(),
+            lang.name,
+            count.comment,
+            count.blank,
+            count.code
+        );
+    });
 }

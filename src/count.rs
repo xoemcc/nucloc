@@ -43,9 +43,10 @@ struct BlockComment {
 
 #[derive(Copy, Clone, Debug)]
 pub struct Language {
+    pub name: &'static str,
     line: Option<&'static [u8]>,
     block: Option<BlockComment>,
-    ft: &'static str,
+    ext: &'static [&'static str],
 }
 
 impl Language {
@@ -66,6 +67,10 @@ impl Language {
         content[..len] == *c
     }
 
+    pub fn is_file(&self, ext: &str) -> bool {
+        self.ext.contains(&ext)
+    }
+
     pub fn is_lc(&self, line: &[u8]) -> bool {
         return Self::check_line(self.line, line);
     }
@@ -79,14 +84,31 @@ impl Language {
     }
 }
 
+pub const TEXT: Language = Language {
+    name: "plaintext",
+    line: None,
+    block: None,
+    ext: &[""],
+};
+
 pub const RUST: Language = Language {
+    name: "rust",
     line: Some(b"//"),
     block: Some(BlockComment {
         start: b"/*",
         end: b"*/",
     }),
-    ft: ".rs",
+    ext: &["rs"],
 };
+
+pub const TOML: Language = Language {
+    name: "toml",
+    line: Some(b"#"),
+    block: None,
+    ext: &["toml"],
+};
+
+pub const LANGUAGES: &'static [Language] = &[RUST, TOML];
 
 pub struct Count {
     pub blank: usize,

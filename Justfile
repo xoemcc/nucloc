@@ -4,5 +4,5 @@ build:
 release: 
 	cargo build --release
 
-run args="": 
+run *args: 
 	cargo run -- {{args}}
