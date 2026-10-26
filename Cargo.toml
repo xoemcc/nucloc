@@ -1,5 +1,5 @@
 [package]
-name = "ncloc"
+name = "nucloc"
 license = "MIT"
 authors = ["Emma Jellema-Butler <@emma.jellemabutler@gmail.com>"]
 license-file = "LICENSE.md"

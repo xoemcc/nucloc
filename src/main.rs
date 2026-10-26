@@ -5,6 +5,8 @@ use std::{ffi::OsStr, fs::File, io::BufReader, path::PathBuf};
 
 use clap::{Command, arg, command, value_parser};
 
+use std::time::Instant;
+
 use crate::count::{Count, LANGUAGES, RUST, TEXT};
 
 fn main() {
@@ -21,6 +23,8 @@ fn main() {
 
     let patterns: Vec<&PathBuf> = matches.get_many("pattern").unwrap().collect();
 
+    let start = Instant::now();
+
     patterns.iter().for_each(|p| {
         let ext = p.extension().unwrap_or(OsStr::new("")).to_string_lossy();
 
@@ -30,14 +34,9 @@ fn main() {
         let mut reader = BufReader::new(&file);
 
         let count = Count::from_reader(&mut reader, *lang).unwrap();
-
-        println!(
-            "{} {} {} {} {}",
-            p.file_name().unwrap().to_string_lossy(),
-            lang.name,
-            count.comment,
-            count.blank,
-            count.code
-        );
     });
+
+    let elapsed = start.elapsed();
+
+    println!("{}", elapsed.as_micros());
 }
