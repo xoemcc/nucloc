@@ -1,5 +1,8 @@
 [package]
 name = "ncloc"
+license = "MIT"
+authors = ["Emma Jellema-Butler <@emma.jellemabutler@gmail.com>"]
+license-file = "LICENSE.md"
 version = "0.1.0"
 edition = "2024"
 
